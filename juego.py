@@ -221,7 +221,6 @@ class Player(pygame.sprite.Sprite):
                 all_sprites.add(bullet2)
                 bullets.add(bullet1)
                 bullets.add(bullet2)
-                # shooting_sound.play()
 
             # Triple bullets
             if self.power >= 3:
@@ -234,8 +233,6 @@ class Player(pygame.sprite.Sprite):
                 bullets.add(bullet1)
                 bullets.add(bullet2)
                 bullets.add(missile1)
-                # shooting_sound.play()
-                # missile_sound.play()
 
     # powerup
     def powerup(self):
