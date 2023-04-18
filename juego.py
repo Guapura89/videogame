@@ -5,7 +5,6 @@ from os import path
 
 # Assets
 img_dir = path.join(path.dirname(__file__), 'assets')
-sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 
 WIDTH = 800
@@ -15,7 +14,7 @@ POWERUP_TIME = 5000
 BAR_LENGTH = 100
 BAR_HEIGHT = 10
 
-# Colors 
+# Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -24,7 +23,7 @@ WIN_GREEN = (51, 102, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-#Init
+# Init
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -41,7 +40,8 @@ def won_menu():
     pygame.display.update()
 
     screen.fill(WIN_GREEN)
-    draw_text(screen, "The traveler has arrived his destination.", 40, WIDTH/2, HEIGHT/2 -20)
+    draw_text(screen, "The traveler has arrived his destination.",
+              40, WIDTH/2, HEIGHT/2 - 20)
     draw_text(screen, "Congratilations!", 40, WIDTH/2, HEIGHT/2 + 20)
     pygame.display.update()
 
@@ -58,8 +58,8 @@ def win_menu():
             if ev.key == pygame.K_RETURN:
                 break
         elif ev.type == pygame.QUIT:
-                pygame.quit()
-                quit() 
+            pygame.quit()
+            quit()
         else:
             draw_text(screen, "You won the level", 30, WIDTH/2, HEIGHT/2)
             draw_text(screen, "Press [ENTER]", 30, WIDTH/2, HEIGHT/2 + 40)
@@ -80,8 +80,8 @@ def main_menu():
             if ev.key == pygame.K_RETURN:
                 break
         elif ev.type == pygame.QUIT:
-                pygame.quit()
-                quit() 
+            pygame.quit()
+            quit()
         else:
             draw_text(screen, "Press [ENTER]", 30, WIDTH/2, HEIGHT/2)
             pygame.display.update()
@@ -89,6 +89,7 @@ def main_menu():
     screen.fill(BLACK)
     draw_text(screen, "Level 1", 40, WIDTH/2, HEIGHT/2)
     pygame.display.update()
+
 
 def lvl2_menu():
     global screen
@@ -99,6 +100,7 @@ def lvl2_menu():
     draw_text(screen, "Level 2", 40, WIDTH/2, HEIGHT/2)
     pygame.display.update()
 
+
 def lvl3_menu():
     global screen
 
@@ -107,19 +109,21 @@ def lvl3_menu():
     screen.fill(BLACK)
     draw_text(screen, "Level 3", 40, WIDTH/2, HEIGHT/2)
     pygame.display.update()
-    
+
 
 # Score
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)       
+    text_surface = font.render(text, True, WHITE)
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
 # Shield Bar
+
+
 def draw_shield_bar(surf, x, y, pct):
-    pct = max(pct, 0) 
+    pct = max(pct, 0)
     fill = (pct / 100) * BAR_LENGTH
     outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
@@ -127,9 +131,11 @@ def draw_shield_bar(surf, x, y, pct):
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
 # Lives
+
+
 def draw_lives(surf, x, y, lives, img):
     for i in range(lives):
-        img_rect= img.get_rect()
+        img_rect = img.get_rect()
         img_rect.x = x + 30 * i
         img_rect.y = y
         surf.blit(img, img_rect)
@@ -146,14 +152,14 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        
+
         self.image = pygame.transform.scale(player_img, (50, 38))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 20
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
-        self.speedx = 0 
+        self.speedx = 0
         self.shield = 100
         self.shoot_delay = 250
         self.last_shot = pygame.time.get_ticks()
@@ -164,12 +170,12 @@ class Player(pygame.sprite.Sprite):
         self.power_timer = pygame.time.get_ticks()
 
     def update(self):
-        
-        if self.power >=2 and pygame.time.get_ticks() - self.power_time > POWERUP_TIME:
+
+        if self.power >= 2 and pygame.time.get_ticks() - self.power_time > POWERUP_TIME:
             self.power -= 1
             self.power_time = pygame.time.get_ticks()
 
-        # unhide 
+        # unhide
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
             self.hidden = False
             self.rect.centerx = WIDTH / 2
@@ -178,7 +184,7 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 0
 
         # Key pressed
-        keystate = pygame.key.get_pressed()     
+        keystate = pygame.key.get_pressed()
         if keystate[pygame.K_LEFT]:
             self.speedx = -5
         elif keystate[pygame.K_RIGHT]:
@@ -196,7 +202,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.speedx
 
     def shoot(self):
-        ## to tell the bullet where to spawn
+        # to tell the bullet where to spawn
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
@@ -206,7 +212,7 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.centerx, self.rect.top)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
-                
+
             # Double bullets
             if self.power == 2:
                 bullet1 = Bullet(self.rect.left, self.rect.centery)
@@ -215,7 +221,7 @@ class Player(pygame.sprite.Sprite):
                 all_sprites.add(bullet2)
                 bullets.add(bullet1)
                 bullets.add(bullet2)
-                #shooting_sound.play()
+                # shooting_sound.play()
 
             # Triple bullets
             if self.power >= 3:
@@ -228,8 +234,8 @@ class Player(pygame.sprite.Sprite):
                 bullets.add(bullet1)
                 bullets.add(bullet2)
                 bullets.add(missile1)
-                #shooting_sound.play()
-                #missile_sound.play()
+                # shooting_sound.play()
+                # missile_sound.play()
 
     # powerup
     def powerup(self):
@@ -250,24 +256,24 @@ class Mob(pygame.sprite.Sprite):
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
-        self.radius = int(self.rect.width *.90 / 2)
+        self.radius = int(self.rect.width * .90 / 2)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150, -100)
-        self.speedy = random.randrange(5, 10)  
+        self.speedy = random.randrange(5, 10)
         self.speedx = random.randrange(-3, 3)
 
         # Rotation
         self.rotation = 0
         self.rotation_speed = random.randrange(-8, 8)
         self.last_update = pygame.time.get_ticks()
-    
 
     # Rotate the mob elements
+
     def rotate(self):
         time_now = pygame.time.get_ticks()
-        if time_now - self.last_update > 50: # milliseconds
+        if time_now - self.last_update > 50:  # milliseconds
             self.last_update = time_now
-            self.rotation = (self.rotation + self.rotation_speed) % 360 
+            self.rotation = (self.rotation + self.rotation_speed) % 360
             new_image = pygame.transform.rotate(self.image_orig, self.rotation)
             old_center = self.rect.center
             self.image = new_image
@@ -278,13 +284,15 @@ class Mob(pygame.sprite.Sprite):
         self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        
+
         if (self.rect.top > HEIGHT + 10) or (self.rect.left < -25) or (self.rect.right > WIDTH + 20):
             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
             self.rect.y = random.randrange(-100, -40)
             self.speedy = random.randrange(1, 8)
 
 # Power up
+
+
 class Pow(pygame.sprite.Sprite):
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
@@ -300,7 +308,6 @@ class Pow(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.kill()
 
-            
 
 # Bullets class
 class Bullet(pygame.sprite.Sprite):
@@ -309,7 +316,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image = bullet_img
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.bottom = y 
+        self.rect.bottom = y
         self.rect.centerx = x
         self.speedy = -10
 
@@ -336,41 +343,46 @@ class Missile(pygame.sprite.Sprite):
             self.kill()
 
 
-
 # Background image
-background = pygame.image.load(path.join(img_dir, 'starfield.png')).convert()
+background = pygame.image.load(path.join(img_dir, 'universe.jpeg')).convert()
 background_rect = background.get_rect()
 
 # Player images
-player_img = pygame.image.load(path.join(img_dir, 'playerShip1_orange.png')).convert()
+player_img = pygame.image.load(
+    path.join(img_dir, 'nave-espacial.png')).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey(BLACK)
 
 # Bullets images
-bullet_img = pygame.image.load(path.join(img_dir, 'laserRed16.png')).convert()
-missile_img = pygame.image.load(path.join(img_dir, 'missile.png')).convert_alpha()
-meteor_img = pygame.image.load(path.join(img_dir, 'meteorBrown_med1.png')).convert()
+bullet_img = pygame.image.load(path.join(img_dir, 'misil.png')).convert()
+missile_img = pygame.image.load(
+    path.join(img_dir, 'misil.png')).convert_alpha()
+meteor_img = pygame.image.load(
+    path.join(img_dir, 'meteoro3.png')).convert()
 meteor_images = []
 meteor_list = [
-    'meteorBrown_big1.png',
-    'meteorBrown_big2.png', 
-    'meteorBrown_med1.png', 
-    'meteorBrown_med3.png',
-    'meteorBrown_small1.png',
-    'meteorBrown_small2.png',
-    'meteorBrown_tiny1.png'
+    'meteoro1.png',
+    'meteoro2.png',
+    'meteoro3.png',
+    'meteoro4.png',
+    'meteoro5.png',
+    'meteoro6.png',
+    'meteoro7.png'
 ]
 
 for image in meteor_list:
-    meteor_images.append(pygame.image.load(path.join(img_dir, image)).convert())
+    meteor_images.append(pygame.image.load(
+        path.join(img_dir, image)).convert())
 
-## load power ups
+# load power ups
 powerup_images = {}
-powerup_images['shield'] = pygame.image.load(path.join(img_dir, 'shield_gold.png')).convert()
-powerup_images['gun'] = pygame.image.load(path.join(img_dir, 'bolt_gold.png')).convert()
+powerup_images['shield'] = pygame.image.load(
+    path.join(img_dir, 'escudo.png')).convert()
+powerup_images['gun'] = pygame.image.load(
+    path.join(img_dir, 'buff.png')).convert()
 
 
-## Game loop
+# Game loop
 running = True
 menu_display = True
 lvl2 = False
@@ -382,7 +394,7 @@ while running:
         pygame.time.wait(1000)
 
         menu_display = False
-        
+
         # Group all sprites
         all_sprites = pygame.sprite.Group()
         player = Player()
@@ -405,7 +417,7 @@ while running:
         pygame.time.wait(1000)
 
         lvl2 = False
-        
+
         # Group all sprites
         all_sprites = pygame.sprite.Group()
         player = Player()
@@ -421,14 +433,14 @@ while running:
         powerups = pygame.sprite.Group()
 
         # Score board variable
-        score = 100
-    
+        score = 350
+
     elif lvl3:
         lvl3_menu()
         pygame.time.wait(1000)
 
         lvl3 = False
-        
+
         # Group all sprites
         all_sprites = pygame.sprite.Group()
         player = Player()
@@ -444,28 +456,26 @@ while running:
         powerups = pygame.sprite.Group()
 
         # Score board variable
-        score = 200
-        
-    #1 Process input/events
+        score = 600
+
+    # 1 Process input/events
     clock.tick(FPS)
     for event in pygame.event.get():
-       
+
         if event.type == pygame.QUIT:
             running = False
 
-        ## Press ESC to exit game
+        # Press ESC to exit game
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
 
-        ## event for shooting the bullets
+        # event for shooting the bullets
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 player.shoot()
 
-
     all_sprites.update()
-
 
     # Bullet collision
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
@@ -477,34 +487,34 @@ while running:
             pow = Pow(hit.rect.center)
             all_sprites.add(pow)
             powerups.add(pow)
-        
 
         # here we can going to lvl 2
-        if score == 100:
-            menu_display = True
+        if score == 350:
+            # menu_display = True
             win_menu()
             lvl2 = True
-        if score == 200:
+        if score == 600:
             win_menu()
             lvl3 = True
-        if score == 400:
+        if score == 1000:
             won_menu()
             pygame.time.wait(4000)
-            running  = False
+            running = False
         newmob()
-    
+
     # Player collision
-    hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
+    hits = pygame.sprite.spritecollide(
+        player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
         player.shield -= hit.radius * 2
         newmob()
-        if player.shield <= 0: 
+        if player.shield <= 0:
             # running = False
             player.hide()
             player.lives -= 1
             player.shield = 100
 
-    ## if the player hit a power up
+    # if the player hit a power up
     hits = pygame.sprite.spritecollide(player, powerups, True)
     for hit in hits:
         if hit.type == 'shield':
@@ -514,24 +524,24 @@ while running:
         if hit.type == 'gun':
             player.powerup()
 
-    ## if player died and the explosion has finished, end game
+    # if player died and the explosion has finished, end game
     if player.lives == 0:
         running = False
 
-
-    #3 Draw/render
+    # 3 Draw/render
     screen.fill(BLACK)
-    ## draw the stargaze.png image
+    # draw the stargaze.png image
     screen.blit(background, background_rect)
 
     all_sprites.draw(screen)
-    draw_text(screen, str(score), 18, WIDTH / 2, 10)     ## 10px down from the screen
+    # 10px down from the screen
+    draw_text(screen, str(score), 18, WIDTH / 2, 10)
     draw_shield_bar(screen, 5, 5, player.shield)
 
     # Draw lives
     draw_lives(screen, WIDTH - 100, 5, player.lives, player_mini_img)
 
-    ## Done after drawing everything to the screen
-    pygame.display.flip()       
+    # Done after drawing everything to the screen
+    pygame.display.flip()
 
 pygame.quit()
