@@ -8,7 +8,7 @@ img_dir = path.join(path.dirname(__file__), 'assets')
 sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 
-WIDTH = 480
+WIDTH = 800
 HEIGHT = 600
 FPS = 60
 POWERUP_TIME = 5000
@@ -20,6 +20,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+WIN_GREEN = (51, 102, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
@@ -27,16 +28,49 @@ YELLOW = (255, 255, 0)
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Shooter")
+pygame.display.set_caption("Commet Runner")
 clock = pygame.time.Clock()
 
 font_name = pygame.font.match_font('arial')
 
-def main_menu():
+
+# Won game
+def won_menu():
     global screen
 
-    #menu_song = pygame.mixer.music.load(path.join(sound_folder, "menu.ogg"))
-    #pygame.mixer.music.play(-1)
+    pygame.display.update()
+
+    screen.fill(WIN_GREEN)
+    draw_text(screen, "The traveler has arrived his destination.", 40, WIDTH/2, HEIGHT/2 -20)
+    draw_text(screen, "Congratilations!", 40, WIDTH/2, HEIGHT/2 + 20)
+    pygame.display.update()
+
+
+# Win menu
+def win_menu():
+    global screen
+
+    pygame.display.update()
+
+    while True:
+        ev = pygame.event.poll()
+        if ev.type == pygame.KEYDOWN:
+            if ev.key == pygame.K_RETURN:
+                break
+        elif ev.type == pygame.QUIT:
+                pygame.quit()
+                quit() 
+        else:
+            draw_text(screen, "You won the level", 30, WIDTH/2, HEIGHT/2)
+            draw_text(screen, "Press [ENTER]", 30, WIDTH/2, HEIGHT/2 + 40)
+            pygame.display.update()
+
+    pygame.display.update()
+
+
+# First menu
+def main_menu():
+    global screen
 
     pygame.display.update()
 
@@ -52,11 +86,26 @@ def main_menu():
             draw_text(screen, "Press [ENTER]", 30, WIDTH/2, HEIGHT/2)
             pygame.display.update()
 
-    #pygame.mixer.music.stop()
-    # ready = pygame.mixer.Sound(path.join(sound_folder,'getready.ogg'))
-    # ready.play()
     screen.fill(BLACK)
-    draw_text(screen, "GET READY!", 40, WIDTH/2, HEIGHT/2)
+    draw_text(screen, "Level 1", 40, WIDTH/2, HEIGHT/2)
+    pygame.display.update()
+
+def lvl2_menu():
+    global screen
+
+    pygame.display.update()
+
+    screen.fill(BLACK)
+    draw_text(screen, "Level 2", 40, WIDTH/2, HEIGHT/2)
+    pygame.display.update()
+
+def lvl3_menu():
+    global screen
+
+    pygame.display.update()
+
+    screen.fill(BLACK)
+    draw_text(screen, "Level 3", 40, WIDTH/2, HEIGHT/2)
     pygame.display.update()
     
 
@@ -139,7 +188,6 @@ class Player(pygame.sprite.Sprite):
         if keystate[pygame.K_SPACE]:
             self.shoot()
 
-        ## check for the borders at the left and right
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
         if self.rect.left < 0:
@@ -158,7 +206,8 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.centerx, self.rect.top)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
-                #shooting_sound.play()
+                
+            # Double bullets
             if self.power == 2:
                 bullet1 = Bullet(self.rect.left, self.rect.centery)
                 bullet2 = Bullet(self.rect.right, self.rect.centery)
@@ -168,7 +217,7 @@ class Player(pygame.sprite.Sprite):
                 bullets.add(bullet2)
                 #shooting_sound.play()
 
-            # Triple bullet
+            # Triple bullets
             if self.power >= 3:
                 bullet1 = Bullet(self.rect.left, self.rect.centery)
                 bullet2 = Bullet(self.rect.right, self.rect.centery)
@@ -229,8 +278,7 @@ class Mob(pygame.sprite.Sprite):
         self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        ## now what if the mob element goes out of the screen
-
+        
         if (self.rect.top > HEIGHT + 10) or (self.rect.left < -25) or (self.rect.right > WIDTH + 20):
             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
             self.rect.y = random.randrange(-100, -40)
@@ -293,10 +341,12 @@ class Missile(pygame.sprite.Sprite):
 background = pygame.image.load(path.join(img_dir, 'starfield.png')).convert()
 background_rect = background.get_rect()
 
-# Player image
+# Player images
 player_img = pygame.image.load(path.join(img_dir, 'playerShip1_orange.png')).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey(BLACK)
+
+# Bullets images
 bullet_img = pygame.image.load(path.join(img_dir, 'laserRed16.png')).convert()
 missile_img = pygame.image.load(path.join(img_dir, 'missile.png')).convert_alpha()
 meteor_img = pygame.image.load(path.join(img_dir, 'meteorBrown_med1.png')).convert()
@@ -323,35 +373,82 @@ powerup_images['gun'] = pygame.image.load(path.join(img_dir, 'bolt_gold.png')).c
 ## Game loop
 running = True
 menu_display = True
+lvl2 = False
+lvl3 = False
+
 while running:
     if menu_display:
         main_menu()
-        pygame.time.wait(3000)
+        pygame.time.wait(1000)
 
-
-        
         menu_display = False
         
-        ## group all the sprites together for ease of update
+        # Group all sprites
         all_sprites = pygame.sprite.Group()
         player = Player()
         all_sprites.add(player)
 
-        ## spawn a group of mob
+        # Spawn mobs
         mobs = pygame.sprite.Group()
-        for i in range(8):      ## 8 mobs
+        for i in range(3):
             newmob()
 
-        ## group for bullets
+        # Group for bullets
         bullets = pygame.sprite.Group()
         powerups = pygame.sprite.Group()
 
-        #### Score board variable
+        # Score board variable
         score = 0
+
+    elif lvl2:
+        lvl2_menu()
+        pygame.time.wait(1000)
+
+        lvl2 = False
+        
+        # Group all sprites
+        all_sprites = pygame.sprite.Group()
+        player = Player()
+        all_sprites.add(player)
+
+        # Spawn mobs
+        mobs = pygame.sprite.Group()
+        for i in range(8):
+            newmob()
+
+        # Group for bullets
+        bullets = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
+
+        # Score board variable
+        score = 100
+    
+    elif lvl3:
+        lvl3_menu()
+        pygame.time.wait(1000)
+
+        lvl3 = False
+        
+        # Group all sprites
+        all_sprites = pygame.sprite.Group()
+        player = Player()
+        all_sprites.add(player)
+
+        # Spawn mobs
+        mobs = pygame.sprite.Group()
+        for i in range(12):
+            newmob()
+
+        # Group for bullets
+        bullets = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
+
+        # Score board variable
+        score = 200
         
     #1 Process input/events
-    clock.tick(FPS)     ## will make the loop run at the same speed all the time
-    for event in pygame.event.get():        # gets all the events which have occured till now and keeps tab of them.
+    clock.tick(FPS)
+    for event in pygame.event.get():
        
         if event.type == pygame.QUIT:
             running = False
@@ -360,10 +457,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+
         ## event for shooting the bullets
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                player.shoot()      ## we have to define the shoot()  function
+                player.shoot()
 
 
     all_sprites.update()
@@ -384,6 +482,15 @@ while running:
         # here we can going to lvl 2
         if score == 100:
             menu_display = True
+            win_menu()
+            lvl2 = True
+        if score == 200:
+            win_menu()
+            lvl3 = True
+        if score == 400:
+            won_menu()
+            pygame.time.wait(4000)
+            running  = False
         newmob()
     
     # Player collision
@@ -408,7 +515,7 @@ while running:
             player.powerup()
 
     ## if player died and the explosion has finished, end game
-    if player.lives == 0 and not death_explosion.alive():
+    if player.lives == 0:
         running = False
 
 
