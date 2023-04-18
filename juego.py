@@ -93,31 +93,6 @@ def newmob():
     mobs.add(mob_element)
 
 
-class Explosion(pygame.sprite.Sprite):
-    def __init__(self, center, size):
-        pygame.sprite.Sprite.__init__(self)
-        self.size = size
-        self.image = explosion_anim[self.size][0]
-        self.rect = self.image.get_rect()
-        self.rect.center = center
-        self.frame = 0 
-        self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 75
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_update > self.frame_rate:
-            self.last_update = now
-            self.frame += 1
-            if self.frame == len(explosion_anim[self.size]):
-                self.kill()
-            else:
-                center = self.rect.center
-                self.image = explosion_anim[self.size][self.frame]
-                self.rect = self.image.get_rect()
-                self.rect.center = center
-
-
 class Player(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -133,7 +108,7 @@ class Player(pygame.sprite.Sprite):
         self.shield = 100
         self.shoot_delay = 250
         self.last_shot = pygame.time.get_ticks()
-        self.lives = 5
+        self.lives = 3
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
         self.power = 1
@@ -296,7 +271,7 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 
-## FIRE ZE MISSILES
+# Missile class
 class Missile(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -338,27 +313,6 @@ meteor_list = [
 
 for image in meteor_list:
     meteor_images.append(pygame.image.load(path.join(img_dir, image)).convert())
-
-## meteor explosion
-# explosion_anim = {}
-# explosion_anim['lg'] = []
-# explosion_anim['sm'] = []
-# explosion_anim['player'] = []
-# for i in range(9):
-#     filename = 'regularExplosion0{}.png'.format(i)
-#     img = pygame.image.load(path.join(img_dir, filename)).convert()
-#     img.set_colorkey(BLACK)
-#     ## resize the explosion
-#     img_lg = pygame.transform.scale(img, (75, 75))
-#     explosion_anim['lg'].append(img_lg)
-#     img_sm = pygame.transform.scale(img, (32, 32))
-#     explosion_anim['sm'].append(img_sm)
-
-#     ## player explosion
-#     filename = 'sonicExplosion0{}.png'.format(i)
-#     img = pygame.image.load(path.join(img_dir, filename)).convert()
-#     img.set_colorkey(BLACK)
-#     explosion_anim['player'].append(img)
 
 ## load power ups
 powerup_images = {}
@@ -425,6 +379,11 @@ while running:
             pow = Pow(hit.rect.center)
             all_sprites.add(pow)
             powerups.add(pow)
+        
+
+        # here we can going to lvl 2
+        if score == 100:
+            menu_display = True
         newmob()
     
     # Player collision
